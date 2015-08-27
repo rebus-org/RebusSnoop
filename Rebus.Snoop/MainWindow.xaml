@@ -146,7 +146,7 @@ xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             
-            <GroupBox Header="Headers" Grid.Row="0">
+            <GroupBox Header="Headers" Grid.Row="0" MaxHeight="200">
                 <ListView ItemsSource="{Binding Machines/Queues/Messages/HeadersExceptError}">
                     <ListView.Resources>
                         <DataTemplate x:Key="HeaderValueCellTemplate">

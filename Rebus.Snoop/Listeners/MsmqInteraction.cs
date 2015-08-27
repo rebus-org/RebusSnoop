@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using GalaSoft.MvvmLight.Messaging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Rebus.Messages;
 using Rebus.Shared;
 using Rebus.Snoop.Events;
@@ -683,8 +684,10 @@ Body:
                 {
                     var bytes = reader.ReadBytes((int)message.BodyStream.Length);
                     var str = encoder.GetString(bytes);
-                    body = str;
+
+                    body = TryToIndentJson(str);
                     bodySize = bytes.Length;
+                    
                     return true;
                 }
             }
@@ -693,6 +696,18 @@ Body:
                 body = string.Format("An error occurred while decoding the body: {0}", e);
                 bodySize = GetLengthFromStreamIfPossible(message);
                 return false;
+            }
+        }
+
+        string TryToIndentJson(string jsonText)
+        {
+            try
+            {
+                return JsonConvert.SerializeObject(JsonConvert.DeserializeObject<JObject>(jsonText), Formatting.Indented);
+            }
+            catch
+            {
+                return jsonText;
             }
         }
 
