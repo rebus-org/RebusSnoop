@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Rebus.Messages;
 using Rebus.Shared;
+using Rebus.Snoop.Compression;
 using Rebus.Snoop.Events;
 using Rebus.Snoop.ViewModel.Models;
 using Message = Rebus.Snoop.ViewModel.Models.Message;
@@ -677,19 +678,27 @@ Body:
                     return false;
                 }
 
+                var destination = new MemoryStream();
+                message.BodyStream.CopyTo(destination);
+
+                var bytes = destination.ToArray();
+
+                var bodyIsGzipped = headers.ContainsKey(Headers.ContentEncoding) &&
+                        string.Equals(headers[Headers.ContentEncoding], "gzip", StringComparison.InvariantCultureIgnoreCase);
+
+                if (bodyIsGzipped)
+                {
+                    bytes = new Zipper().Unzip(bytes);
+                }
+
                 var encoding = headers[Headers.ContentType];
                 var encoder = GetEncoding(encoding);
+                var str = encoder.GetString(bytes);
 
-                using (var reader = new BinaryReader(message.BodyStream))
-                {
-                    var bytes = reader.ReadBytes((int)message.BodyStream.Length);
-                    var str = encoder.GetString(bytes);
+                body = TryToIndentJson(str);
+                bodySize = bytes.Length;
 
-                    body = TryToIndentJson(str);
-                    bodySize = bytes.Length;
-                    
-                    return true;
-                }
+                return true;
             }
             catch (Exception e)
             {
