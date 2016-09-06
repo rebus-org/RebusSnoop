@@ -12,6 +12,8 @@
   See http://www.galasoft.ch/mvvm
 */
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Rebus.Snoop.ViewModel
 {
     /// <summary>
@@ -20,9 +22,7 @@ namespace Rebus.Snoop.ViewModel
     /// </summary>
     public class ViewModelLocator
     {
-        static MainViewModel main;
-        
-        readonly MachinesViewModel machinesViewModel;
+        static MainViewModel _main;
 
         /// <summary>
         /// Initializes a new instance of the ViewModelLocator class.
@@ -38,30 +38,17 @@ namespace Rebus.Snoop.ViewModel
             ////    // Create run time services and view models
             ////}
 
-            main = new MainViewModel();
+            _main = new MainViewModel();
 
-            machinesViewModel = new MachinesViewModel();
+            MachinesViewModel = new MachinesViewModel();
         }
 
         /// <summary>
         /// Gets the Main property which defines the main viewmodel.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
-            "CA1822:MarkMembersAsStatic",
-            Justification = "This non-static member is needed for data binding purposes.")]
-        public MainViewModel Main
-        {
-            get
-            {
-                return main;
-            }
-        }
+        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "This non-static member is needed for data binding purposes.")]
+        public MainViewModel Main => _main;
 
-        public MachinesViewModel MachinesViewModel
-        {
-            get {
-                return machinesViewModel;
-            }
-        }
+        public MachinesViewModel MachinesViewModel { get; }
     }
 }
